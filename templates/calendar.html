@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import platform_label, status_badge %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-2 no-print">
+    <button type="button" class="btn btn-secondary-custom" onclick="window.print()">Print Calendar</button>
+</div>
+
+<h1 class="page-title">Weekly Calendar</h1>
+<p class="text-secondary mb-4" style="margin-top:-16px; font-size:12px;">Next 7 days</p>
+
+{% for date_key, day in calendar.items() %}
+<div class="card-custom mb-3 calendar-day">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="calendar-day-label mb-0">{{ day.label }}</h3>
+        <span class="calendar-count">{{ day.posts | length }} post{{ 's' if day.posts | length != 1 else '' }}</span>
+    </div>
+
+    {% if day.posts %}
+    <table class="table table-custom mb-0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Platform</th>
+                <th>Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in day.posts %}
+            {% set post_date = (date_key | string)[:10] %}
+            {% set due_track = post.Status in ['Planned', 'Approved'] %}
+            {% set row_class = 'row-overdue' if due_track and post_date < today_str else ('row-due-today' if due_track and post_date == today_str else '') %}
+            <tr class="{{ row_class }}">
+                <td class="fw-semibold">{{ post.Title }}</td>
+                <td>{{ platform_label(post.Platform) }}</td>
+                <td>{{ post.Type }}</td>
+                <td>{{ status_badge(post.Status) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-secondary mb-0" style="font-size:13px;">No posts scheduled.</p>
+    {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

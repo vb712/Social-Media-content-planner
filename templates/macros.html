@@ -1,0 +1,128 @@
+{% macro platform_link(name, card=False) %}
+{% set platform = name | lower %}
+{% if platform == 'instagram' %}
+<a class="platform-link{% if card %} platform-link-card{% endif %}" href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" title="Open Instagram">
+    <span class="platform-logo platform-logo-instagram">IG</span><span>{{ name }}</span>
+</a>
+{% elif platform == 'twitter' %}
+<a class="platform-link{% if card %} platform-link-card{% endif %}" href="https://x.com" target="_blank" rel="noopener noreferrer" title="Open X / Twitter">
+    <span class="platform-logo platform-logo-twitter">X</span><span>{{ name }}</span>
+</a>
+{% elif platform == 'linkedin' %}
+<a class="platform-link{% if card %} platform-link-card{% endif %}" href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" title="Open LinkedIn">
+    <span class="platform-logo platform-logo-linkedin">in</span><span>{{ name }}</span>
+</a>
+{% elif platform == 'facebook' %}
+<a class="platform-link{% if card %} platform-link-card{% endif %}" href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" title="Open Facebook">
+    <span class="platform-logo platform-logo-facebook">f</span><span>{{ name }}</span>
+</a>
+{% elif platform == 'youtube' %}
+<a class="platform-link{% if card %} platform-link-card{% endif %}" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" title="Open YouTube">
+    <span class="platform-logo platform-logo-youtube">▶</span><span>{{ name }}</span>
+</a>
+{% else %}
+<span class="platform-link{% if card %} platform-link-card{% endif %}"><span class="platform-logo platform-logo-generic">•</span><span>{{ name }}</span></span>
+{% endif %}
+{% endmacro %}
+
+{% macro platform_label(name) %}
+{{ platform_link(name) }}
+{% endmacro %}
+
+{% macro platform_icon(name) %}
+{% set platform = name | lower %}
+{% if platform == 'instagram' %}
+<span class="platform-logo platform-logo-instagram platform-icon-only" title="Instagram">IG</span>
+{% elif platform == 'twitter' %}
+<span class="platform-logo platform-logo-twitter platform-icon-only" title="Twitter">X</span>
+{% elif platform == 'linkedin' %}
+<span class="platform-logo platform-logo-linkedin platform-icon-only" title="LinkedIn">in</span>
+{% elif platform == 'facebook' %}
+<span class="platform-logo platform-logo-facebook platform-icon-only" title="Facebook">f</span>
+{% elif platform == 'youtube' %}
+<span class="platform-logo platform-logo-youtube platform-icon-only" title="YouTube">▶</span>
+{% else %}
+<span class="platform-logo platform-logo-generic platform-icon-only" title="{{ name }}">•</span>
+{% endif %}
+{% endmacro %}
+
+{% macro status_badge(status) %}
+{% if status == 'Draft' %}
+    <span class="badge-status badge-draft">Draft</span>
+{% elif status == 'Approval Pending' %}
+    <span class="badge-status badge-pending">Approval Pending</span>
+{% elif status == 'Approved' %}
+    <span class="badge-status badge-approved">Approved</span>
+{% elif status == 'Planned' %}
+    <span class="badge-status badge-planned">Planned</span>
+{% elif status == 'Posted' %}
+    <span class="badge-status badge-posted">Posted</span>
+{% else %}
+    <span class="badge-status badge-draft">{{ status }}</span>
+{% endif %}
+{% endmacro %}
+
+{% macro next_status_button(row) %}
+{% set id = row.ID | int %}
+{% if row.Status == 'Draft' %}
+<form method="POST" action="/update-status" class="d-inline">
+    <input type="hidden" name="id" value="{{ id }}">
+    <input type="hidden" name="status" value="Approval Pending">
+    <button type="submit" class="btn btn-status-next btn-next-pending btn-sm" title="Send for Approval">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        Send
+    </button>
+</form>
+{% elif row.Status == 'Approval Pending' %}
+<form method="POST" action="/update-status" class="d-inline">
+    <input type="hidden" name="id" value="{{ id }}">
+    <input type="hidden" name="status" value="Approved">
+    <button type="submit" class="btn btn-status-next btn-next-approved btn-sm" title="Approve">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        Approve
+    </button>
+</form>
+{% elif row.Status == 'Approved' %}
+<form method="POST" action="/update-status" class="d-inline">
+    <input type="hidden" name="id" value="{{ id }}">
+    <input type="hidden" name="status" value="Planned">
+    <button type="submit" class="btn btn-status-next btn-next-planned btn-sm" title="Schedule">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Schedule
+    </button>
+</form>
+{% elif row.Status == 'Planned' %}
+<form method="POST" action="/update-status" class="d-inline">
+    <input type="hidden" name="id" value="{{ id }}">
+    <input type="hidden" name="status" value="Posted">
+    <button type="submit" class="btn btn-status-update btn-sm" title="Mark as Posted">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Posted
+    </button>
+</form>
+{% elif row.Status == 'Posted' %}
+<form method="POST" action="/update-status" class="d-inline">
+    <input type="hidden" name="id" value="{{ id }}">
+    <input type="hidden" name="status" value="Planned">
+    <button type="submit" class="btn btn-status-revert btn-sm" title="Revert to Planned">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        Revert
+    </button>
+</form>
+{% endif %}
+{% endmacro %}
+
+{% macro edit_button(row) %}
+<a href="/edit/{{ row.ID | int }}" class="btn btn-edit btn-sm" title="Edit">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+</a>
+{% endmacro %}
+
+{% macro delete_button(row) %}
+<form method="POST" action="/delete" class="d-inline" onsubmit="return confirm('Delete this content?')">
+    <input type="hidden" name="id" value="{{ row.ID | int }}">
+    <button type="submit" class="btn btn-delete btn-sm" title="Delete">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+    </button>
+</form>
+{% endmacro %}

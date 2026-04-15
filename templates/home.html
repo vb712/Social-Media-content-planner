@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% from "macros.html" import platform_label, status_badge, platform_link %}
+
+{% block content %}
+{% if quick_added %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    Quick content added as Draft.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="hero-section">
+    <h1 class="hero-title">Social Media Content Planner</h1>
+    <p class="hero-subtitle">Plan, organize, and track your content across all platforms.</p>
+    <div class="d-flex gap-2 justify-content-center">
+        <a href="/add" class="btn btn-primary-custom">Add Content</a>
+        <a href="/calendar" class="btn btn-secondary-custom">View Calendar</a>
+    </div>
+</div>
+
+<div class="card-custom mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title mb-0">Platform Links</h2>
+        <small class="text-secondary">Official platform shortcuts</small>
+    </div>
+    <div class="row g-2">
+        {% for platform in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'YouTube'] %}
+        <div class="col-6 col-md-4 col-lg-2">
+            {{ platform_link(platform, true) }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-bar stat-bar-primary"></div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Draft</div>
+            <div class="stat-value stat-value-gray">{{ stats.draft }}</div>
+            <div class="stat-bar stat-bar-gray"></div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value stat-value-purple">{{ stats.pending }}</div>
+            <div class="stat-bar stat-bar-purple"></div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value stat-value-blue">{{ stats.approved }}</div>
+            <div class="stat-bar stat-bar-blue"></div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Planned</div>
+            <div class="stat-value stat-value-amber">{{ stats.planned }}</div>
+            <div class="stat-bar stat-bar-amber"></div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card-custom stat-card">
+            <div class="stat-label">Posted</div>
+            <div class="stat-value stat-value-green">{{ stats.posted }}</div>
+            <div class="stat-bar stat-bar-green"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="section-title mb-0">Upcoming Posts</h2>
+                <span class="text-secondary" style="font-size:12px;">Next 3 days</span>
+            </div>
+            {% if upcoming %}
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Platform</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in upcoming %}
+                    {% set row_date = (row.Date | string)[:10] %}
+                    {% set due_track = row.Status in ['Planned', 'Approved'] %}
+                    {% set row_class = 'row-overdue' if due_track and row_date < today_str else ('row-due-today' if due_track and row_date == today_str else '') %}
+                    <tr class="{{ row_class }}">
+                        <td class="fw-semibold">{{ row.Title }}</td>
+                        <td>{{ platform_label(row.Platform) }}</td>
+                        <td>
+                            {{ row_date }}
+                            {% if due_track and row_date < today_str %}
+                            <span class="date-label label-overdue">Overdue</span>
+                            {% elif due_track and row_date == today_str %}
+                            <span class="date-label label-today">Due Today</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ status_badge(row.Status) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <p class="text-secondary mt-2 mb-0">No upcoming posts in the next 3 days.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="section-title mb-0">Suggestions</h2>
+                <form method="POST" action="/get-ai-suggestions" class="m-0">
+                    <button type="submit" class="btn btn-secondary-custom btn-sm">Get Suggestions</button>
+                </form>
+            </div>
+
+            <h3 class="recent-posts-title">Recent Posts</h3>
+            {% if recent_posts %}
+            <ul class="recent-posts-list mb-3">
+                {% for post in recent_posts %}
+                <li class="recent-post-item">
+                    <span class="recent-post-name">{{ post.Title }}</span>
+                    <span class="recent-post-meta">{{ post.Platform }} • {{ post.Date }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-secondary mb-3">No recent posts available.</p>
+            {% endif %}
+
+            {% if ai_error %}
+            <p class="text-secondary mb-3">{{ ai_error }}</p>
+            {% endif %}
+
+            <h3 class="recent-posts-title">Next AI Suggestions</h3>
+            {% if ai_suggestions %}
+            <ul class="suggestion-list">
+                {% for tip in ai_suggestions %}
+                <li class="suggestion-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.8L20 9l-4 3.9.9 5.6L12 16l-4.9 2.5.9-5.6L4 9l5.6-2.2L12 2z"></path></svg>
+                    <span>{{ tip }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-secondary mb-3">Click <strong>Get Suggestions</strong> to generate next-post ideas from your recent posts.</p>
+            {% if suggestions %}
+            <ul class="suggestion-list">
+                {% for tip in suggestions %}
+                <li class="suggestion-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>{{ tip }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-secondary mb-0">No suggestions right now.</p>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card-custom mt-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-title mb-0">Quick Add</h2>
+        <button class="btn btn-secondary-custom btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#quickAddPanel" aria-expanded="false" aria-controls="quickAddPanel">
+            Toggle
+        </button>
+    </div>
+    <div class="collapse mt-3" id="quickAddPanel">
+        <form method="POST" action="/quick-add" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label for="quick-title" class="form-label fw-semibold">Title</label>
+                <input type="text" class="form-control form-control-custom" id="quick-title" name="title" required>
+            </div>
+            <div class="col-md-3">
+                <label for="quick-platform" class="form-label fw-semibold">Platform</label>
+                <select class="form-select form-control-custom" id="quick-platform" name="platform" required>
+                    <option value="">Select</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">Twitter</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="YouTube">YouTube</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="quick-date" class="form-label fw-semibold">Date</label>
+                <input type="date" class="form-control form-control-custom" id="quick-date" name="date" required>
+            </div>
+            <div class="col-md-2">
+                <label for="quick-reference-link" class="form-label fw-semibold">Reference</label>
+                <input type="url" class="form-control form-control-custom" id="quick-reference-link" name="reference_link" placeholder="https://...">
+            </div>
+            <div class="col-md-12 d-grid d-md-block mt-2">
+                <button type="submit" class="btn btn-primary-custom">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

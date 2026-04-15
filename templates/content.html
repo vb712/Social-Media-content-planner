@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% from "macros.html" import platform_icon, status_badge, next_status_button, edit_button, delete_button %}
+
+{% block content %}
+<h1 class="page-title">Content List</h1>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <form method="GET" action="/content" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="search" class="form-label fw-semibold">Search</label>
+            <input type="text" class="form-control form-control-custom" id="search" name="search" placeholder="Search by title..." value="{{ filters.search or '' }}">
+        </div>
+
+        <div class="col-md-2">
+            <label for="platform" class="form-label fw-semibold">Platform</label>
+            <select class="form-select form-control-custom" id="platform" name="platform">
+                <option value="">All Platforms</option>
+                <option value="Instagram" {% if filters.platform == 'Instagram' %}selected{% endif %}>Instagram</option>
+                <option value="Twitter" {% if filters.platform == 'Twitter' %}selected{% endif %}>Twitter</option>
+                <option value="LinkedIn" {% if filters.platform == 'LinkedIn' %}selected{% endif %}>LinkedIn</option>
+                <option value="Facebook" {% if filters.platform == 'Facebook' %}selected{% endif %}>Facebook</option>
+                <option value="YouTube" {% if filters.platform == 'YouTube' %}selected{% endif %}>YouTube</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="date" class="form-label fw-semibold">Date</label>
+            <input type="date" class="form-control form-control-custom" id="date" name="date" value="{{ filters.date or '' }}">
+        </div>
+
+        <div class="col-md-2">
+            <label for="status" class="form-label fw-semibold">Status</label>
+            <select class="form-select form-control-custom" id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="Draft" {% if filters.status == 'Draft' %}selected{% endif %}>Draft</option>
+                <option value="Approval Pending" {% if filters.status == 'Approval Pending' %}selected{% endif %}>Approval Pending</option>
+                <option value="Approved" {% if filters.status == 'Approved' %}selected{% endif %}>Approved</option>
+                <option value="Planned" {% if filters.status == 'Planned' %}selected{% endif %}>Planned</option>
+                <option value="Posted" {% if filters.status == 'Posted' %}selected{% endif %}>Posted</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary-custom">Filter</button>
+            <a href="/content" class="btn btn-secondary-custom">Clear</a>
+            <a
+                href="{{ url_for('export_csv', platform=filters.platform, date=filters.date, status=filters.status, search=filters.search) }}"
+                class="btn btn-secondary-custom"
+            >
+                Export CSV
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Content Table -->
+{% if content %}
+<div class="card-custom">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <form id="bulkForm" method="POST" action="/bulk-update" class="d-flex gap-2 align-items-center">
+            <select name="status" class="form-select form-control-custom" style="min-width: 190px;">
+                <option value="">Bulk status...</option>
+                <option value="Draft">Draft</option>
+                <option value="Approval Pending">Approval Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Planned">Planned</option>
+                <option value="Posted">Posted</option>
+            </select>
+            <button type="submit" class="btn btn-secondary-custom">Update Selected</button>
+        </form>
+        <small class="text-secondary">Select rows and apply one status update.</small>
+    </div>
+
+    <div class="table-responsive">
+    <table class="table table-custom mb-0">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAllRows"></th>
+                <th>ID</th>
+                <th>Title</th>
+                <th class="platform-col">Platform</th>
+                <th>Type</th>
+                <th>Notes</th>
+                <th>Reference</th>
+                <th>Live Link</th>
+                <th>Date</th>
+                <th class="status-col">Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in content %}
+            {% set row_date = (row.Date | string)[:10] %}
+            {% set due_track = row.Status in ['Planned', 'Approved'] %}
+            {% set row_class = 'row-overdue' if due_track and row_date < today_str else ('row-due-today' if due_track and row_date == today_str else '') %}
+            <tr class="{{ row_class }}">
+                <td><input type="checkbox" class="row-select" value="{{ row.ID | int }}"></td>
+                <td>{{ row.ID | int }}</td>
+                <td class="fw-semibold">{{ row.Title }}</td>
+                <td class="platform-cell">{{ platform_icon(row.Platform) }}</td>
+
+                <td>{{ row.Type }}</td>
+                <td title="{{ row.Notes }}">
+                    {% if row.Notes %}
+                    {{ row.Notes[:60] }}{% if row.Notes|length > 60 %}...{% endif %}
+                    {% else %}
+                    <span class="text-secondary">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.ReferenceLink %}
+                    <a href="{{ row.ReferenceLink }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary-custom btn-sm btn-table">Open Ref</a>
+                    {% else %}
+                    <span class="text-secondary">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.PostedLink %}
+                    <span class="text-secondary">Set</span>
+                    {% elif row.Status == 'Posted' %}
+                    <span class="text-secondary">Needed</span>
+                    {% else %}
+                    <span class="text-secondary">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ row_date }}
+                    {% if due_track and row_date < today_str %}
+                    <span class="date-label label-overdue">Overdue</span>
+                    {% elif due_track and row_date == today_str %}
+                    <span class="date-label label-today">Due Today</span>
+                    {% endif %}
+                </td>
+                <td class="status-cell">{{ status_badge(row.Status) }}</td>
+                <td class="action-cell">
+                    <div class="action-controls">
+                        {{ next_status_button(row) }}
+                        {% if row.Status == 'Posted' and not row.PostedLink %}
+                        <button type="button" class="btn btn-secondary-custom btn-sm btn-table set-post-link-btn" data-id="{{ row.ID | int }}" data-current="{{ row.PostedLink }}" title="Set posted link">Set Link</button>
+                        {% elif row.Status == 'Posted' and row.PostedLink %}
+                        <a href="{{ row.PostedLink }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary-custom btn-sm btn-table" title="Open posted link">Open Post</a>
+                        {% endif %}
+                        {{ edit_button(row) }}
+                        {{ delete_button(row) }}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% else %}
+<div class="card-custom text-center py-5">
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <p class="text-secondary mt-3 mb-1">No content found.</p>
+        <a href="/add" class="btn btn-primary-custom btn-sm mt-2">Add your first post</a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    (function () {
+        const bulkForm = document.getElementById("bulkForm");
+        const selectAll = document.getElementById("selectAllRows");
+        const rowChecks = document.querySelectorAll(".row-select");
+
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                rowChecks.forEach((cb) => {
+                    cb.checked = selectAll.checked;
+                });
+            });
+        }
+
+        if (!bulkForm) {
+            return;
+        }
+
+        bulkForm.addEventListener("submit", function (e) {
+            bulkForm.querySelectorAll("input[name='ids']").forEach((el) => el.remove());
+            const selected = Array.from(rowChecks).filter((cb) => cb.checked).map((cb) => cb.value);
+
+            if (selected.length === 0) {
+                e.preventDefault();
+                alert("Select at least one row for bulk update.");
+                return;
+            }
+
+            selected.forEach((id) => {
+                const hidden = document.createElement("input");
+                hidden.type = "hidden";
+                hidden.name = "ids";
+                hidden.value = id;
+                bulkForm.appendChild(hidden);
+            });
+        });
+
+        const setPostLinkButtons = document.querySelectorAll(".set-post-link-btn");
+        setPostLinkButtons.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const contentId = btn.getAttribute("data-id");
+                const currentLink = btn.getAttribute("data-current") || "";
+                const newLink = window.prompt("Paste live post URL:", currentLink);
+                if (newLink === null) {
+                    return;
+                }
+
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/set-post-link";
+
+                const idField = document.createElement("input");
+                idField.type = "hidden";
+                idField.name = "id";
+                idField.value = contentId;
+
+                const linkField = document.createElement("input");
+                linkField.type = "hidden";
+                linkField.name = "posted_link";
+                linkField.value = newLink.trim();
+
+                form.appendChild(idField);
+                form.appendChild(linkField);
+                document.body.appendChild(form);
+                form.submit();
+            });
+        });
+    })();
+</script>
+{% endblock %}
