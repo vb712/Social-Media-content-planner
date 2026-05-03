@@ -62,6 +62,21 @@
 {% endif %}
 {% endmacro %}
 
+{% macro credifin_social_links() %}
+<a class="credifin-social-link" href="https://www.facebook.com/share/MCoG4SX5iFCaHRdG/" target="_blank" rel="noopener noreferrer" title="Credifin on Facebook">
+    <span class="credifin-social-icon credifin-facebook">f</span>
+</a>
+<a class="credifin-social-link" href="https://www.instagram.com/credif.in/" target="_blank" rel="noopener noreferrer" title="Credifin on Instagram">
+    <span class="credifin-social-icon credifin-instagram">IG</span>
+</a>
+<a class="credifin-social-link" href="https://www.linkedin.com/company/credifinlimited" target="_blank" rel="noopener noreferrer" title="Credifin on LinkedIn">
+    <span class="credifin-social-icon credifin-linkedin">in</span>
+</a>
+<a class="credifin-social-link" href="https://x.com/Credifin_" target="_blank" rel="noopener noreferrer" title="Credifin on Twitter">
+    <span class="credifin-social-icon credifin-twitter">X</span>
+</a>
+{% endmacro %}
+
 {% macro next_status_button(row) %}
 {% set id = row.ID | int %}
 {% if row.Status == 'Draft' %}

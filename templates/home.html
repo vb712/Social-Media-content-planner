@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import platform_label, status_badge, platform_link %}
+{% from "macros.html" import platform_label, status_badge, platform_link, credifin_social_links %}
 
 {% block content %}
 {% if quick_added %}
@@ -29,6 +29,16 @@
             {{ platform_link(platform, true) }}
         </div>
         {% endfor %}
+    </div>
+</div>
+
+<div class="card-custom mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title mb-0">Credifin Social Media</h2>
+        <small class="text-secondary">Follow us for updates</small>
+    </div>
+    <div class="credifin-social-container">
+        {{ credifin_social_links() }}
     </div>
 </div>
 

@@ -940,6 +940,49 @@ html[data-theme="dark"] .alert-success {
 .platform-logo-youtube { background: #FF0000; }
 .platform-logo-generic { background: #6B7280; }
 
+/* === Credifin Social Media Links === */
+.credifin-social-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.credifin-social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.credifin-social-link:hover {
+    transform: translateY(-2px);
+    background: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+
+.credifin-social-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.credifin-facebook { background: #1877F2; }
+.credifin-instagram { background: linear-gradient(135deg, #F58529, #DD2A7B 55%, #8134AF); }
+.credifin-linkedin { background: #0A66C2; }
+.credifin-twitter { background: #1DA1F2; }
+
 /* === Footer === */
 .app-footer {
     padding: 16px 0;
