@@ -20,15 +20,30 @@
 
 <div class="card-custom mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="section-title mb-0">Platform Links</h2>
-        <small class="text-secondary">Official platform shortcuts</small>
+        <h2 class="section-title mb-0">Credifin Links</h2>
+        <small class="text-secondary">Follow Credifin</small>
     </div>
     <div class="row g-2">
-        {% for platform in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'YouTube'] %}
         <div class="col-6 col-md-4 col-lg-2">
-            {{ platform_link(platform, true) }}
+            <a class="platform-link platform-link-card" href="https://www.facebook.com/share/MCoG4SX5iFCaHRdG/" target="_blank" rel="noopener noreferrer" title="Credifin Facebook">
+                <span class="platform-logo platform-logo-facebook">f</span><span>Facebook</span>
+            </a>
         </div>
-        {% endfor %}
+        <div class="col-6 col-md-4 col-lg-2">
+            <a class="platform-link platform-link-card" href="https://www.instagram.com/credif.in/" target="_blank" rel="noopener noreferrer" title="Credifin Instagram">
+                <span class="platform-logo platform-logo-instagram">IG</span><span>Instagram</span>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a class="platform-link platform-link-card" href="https://www.linkedin.com/company/credifinlimited" target="_blank" rel="noopener noreferrer" title="Credifin LinkedIn">
+                <span class="platform-logo platform-logo-linkedin">in</span><span>LinkedIn</span>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a class="platform-link platform-link-card" href="https://x.com/Credifin_" target="_blank" rel="noopener noreferrer" title="Credifin Twitter">
+                <span class="platform-logo platform-logo-twitter">X</span><span>Twitter</span>
+            </a>
+        </div>
     </div>
 </div>
 
